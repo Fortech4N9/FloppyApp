@@ -4,7 +4,7 @@
   "sourceRoot": "apps/floppy/src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "webpack": true,
+    "webpack": false,
     "tsConfigPath": "apps/floppy/tsconfig.app.json"
   },
   "monorepo": true,
@@ -35,6 +35,15 @@
       "sourceRoot": "libs/shared/src",
       "compilerOptions": {
         "tsConfigPath": "libs/shared/tsconfig.lib.json"
+      }
+    },
+    "presence": {
+      "type": "application",
+      "root": "apps/presence",
+      "entryFile": "main",
+      "sourceRoot": "apps/presence/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/presence/tsconfig.app.json"
       }
     }
   }
