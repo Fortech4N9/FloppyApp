@@ -16,4 +16,5 @@ import { SharedModule } from '@app/shared';
   controllers: [PresenceController],
   providers: [PresenceService],
 })
-export class PresenceModule {}
+export class PresenceModule {
+}
