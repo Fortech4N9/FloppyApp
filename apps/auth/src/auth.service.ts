@@ -1,24 +1,24 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { ConflictException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 
 import * as bcrypt from 'bcrypt';
-import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 
-import { UserEntity } from './user.entity';
 import { NewUserDto } from './dtos/new-user.dto';
 import { ExistingUserDto } from './dtos/existing-user.dto';
+import { UserRepositoryInterface, UserEntity } from '@app/shared';
+import { AuthServiceInterface } from './interfaces/auth.service.interface';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements AuthServiceInterface {
   constructor(
-    @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
+    @Inject('UsersRepositoryInterface')
+    private readonly userRepository: UserRepositoryInterface,
     private readonly jwtService: JwtService,
   ) {
   }
 
-  async getUsers() {
-    return this.userRepository.find();
+  async getUsers(): Promise<UserEntity[]> {
+    return this.userRepository.findAll();
   }
 
   async hashPassword(password: string): Promise<string> {
@@ -26,15 +26,9 @@ export class AuthService {
   }
 
   async findByEmail(email: string): Promise<UserEntity> {
-    return this.userRepository.findOne({
-      where: { email: email },
-      select: [
-        'id',
-        'firstName',
-        'lastName',
-        'email',
-        'password',
-      ],
+    return this.userRepository.findOneByCondition({
+      where: { email },
+      select: ['id', 'firstName', 'lastName', 'email', 'password'],
     });
   }
 
@@ -94,7 +88,7 @@ export class AuthService {
     return user;
   }
 
-  async login(existingUser: Readonly<ExistingUserDto>) {
+  async login(existingUser: Readonly<ExistingUserDto>): Promise<{ token: string }> {
     const { email, password } = existingUser;
 
     const user = await this.validateUser(
@@ -112,14 +106,11 @@ export class AuthService {
   }
 
   async verifyJwt(jwt: string): Promise<{ exp: number }> {
-    console.log('verifyJwt authService');
     if (!jwt) {
       throw new UnauthorizedException();
     }
-    console.log('verifyJwt authService');
     try {
       const { exp } = await this.jwtService.verifyAsync(jwt);
-      console.log('verifyJwt authService verifyAsync pass');
       return { exp };
     } catch (error) {
       throw new UnauthorizedException();

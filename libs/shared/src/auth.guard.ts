@@ -40,12 +40,11 @@ export class AuthGuard implements CanActivate {
         if (!exp) {
           return of(false);
         }
-        console.log('authGuard pipe');
+
         const TOKEN_EXP_MS = exp * 1000;
 
         const isJwtValid = Date.now() < TOKEN_EXP_MS;
-        console.log('authGuard TOKEN_EXP_MS');
-        console.log(isJwtValid);
+
         return of(isJwtValid);
       }),
       catchError(() => {

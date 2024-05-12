@@ -1,4 +1,4 @@
-import { Controller, UseGuards } from '@nestjs/common';
+import { Controller, Inject, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
 import { SharedService } from '@app/shared';
@@ -9,7 +9,9 @@ import { JwtGuard } from './jwt.guard';
 @Controller()
 export class AuthController {
   constructor(
+    @Inject('AuthServiceInterface')
     private readonly authService: AuthService,
+    @Inject('SharedServiceInterface')
     private readonly sharedService: SharedService,
   ) {
   }
@@ -47,7 +49,6 @@ export class AuthController {
     @Ctx() context: RmqContext,
     @Payload() payload: { jwt: string },
   ) {
-    console.log(`call verifyJwt(${payload.jwt})`);
     this.sharedService.acknowledgeMessage(context);
 
     return this.authService.verifyJwt(payload.jwt);
