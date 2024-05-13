@@ -7,6 +7,7 @@ import { NewUserDto } from './dtos/new-user.dto';
 import { ExistingUserDto } from './dtos/existing-user.dto';
 import { UserRepositoryInterface, UserEntity } from '@app/shared';
 import { AuthServiceInterface } from './interfaces/auth.service.interface';
+import { use } from 'passport';
 
 @Injectable()
 export class AuthService implements AuthServiceInterface {
@@ -88,7 +89,10 @@ export class AuthService implements AuthServiceInterface {
     return user;
   }
 
-  async login(existingUser: Readonly<ExistingUserDto>): Promise<{ token: string }> {
+  async login(existingUser: Readonly<ExistingUserDto>): Promise<{
+    token: string,
+    user: UserEntity
+  }> {
     const { email, password } = existingUser;
 
     const user = await this.validateUser(
@@ -102,7 +106,10 @@ export class AuthService implements AuthServiceInterface {
 
     const jwt = await this.jwtService.signAsync({ user });
 
-    return { token: jwt };
+    delete user.password;
+    delete user.id;
+
+    return { token: jwt, user: user };
   }
 
   async verifyJwt(jwt: string): Promise<{ exp: number }> {

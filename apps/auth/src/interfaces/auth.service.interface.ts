@@ -23,7 +23,10 @@ export interface AuthServiceInterface {
     password: string,
   ): Promise<UserEntity>;
 
-  login(existingUser: Readonly<ExistingUserDto>): Promise<{ token: string }>;
+  login(existingUser: Readonly<ExistingUserDto>): Promise<{
+    token: string,
+    user: UserEntity
+  }>;
 
   verifyJwt(jwt: string): Promise<{ exp: number }>;
 
