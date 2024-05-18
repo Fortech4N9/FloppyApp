@@ -3,7 +3,15 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SharedModule, PostgresDBModule, SharedService, UsersRepository, UserEntity } from '@app/shared';
+import {
+  SharedModule,
+  PostgresDBModule,
+  SharedService,
+  UsersRepository,
+  UserEntity,
+  FriendRequestsRepository,
+  FriendRequestEntity,
+} from '@app/shared';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtGuard } from './jwt.guard';
 import { JwtStrategy } from './jwt-strategy';
@@ -27,7 +35,10 @@ import { JwtStrategy } from './jwt-strategy';
     SharedModule,
     PostgresDBModule,
 
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      FriendRequestEntity
+    ]),
   ],
   controllers: [AuthController],
   providers: [
@@ -44,6 +55,10 @@ import { JwtStrategy } from './jwt-strategy';
     {
       provide: 'SharedServiceInterface',
       useClass: SharedService,
+    },
+    {
+      provide: 'FriendRequestsRepositoryInterface',
+      useClass: FriendRequestsRepository,
     },
   ],
 })

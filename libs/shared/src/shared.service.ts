@@ -31,6 +31,4 @@ export class SharedService implements SharedServiceInterface {
     const message = context.getMessage();
     channel.ack(message);
   }
-
-
 }

@@ -1,67 +1,117 @@
-import { Body, Controller, Get, Inject, Post, UseGuards } from '@nestjs/common';
-import {ClientProxy} from "@nestjs/microservices";
-import { AuthGuard } from '@app/shared';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { AuthGuard, UserInterceptor, UserRequest } from '@app/shared';
 
 @Controller()
 export class AppController {
-    constructor(
-      @Inject('AUTH_SERVICE') private readonly authService: ClientProxy,
-      @Inject('PRESENCE_SERVICE') private readonly presenceService: ClientProxy
-    ) {
+  constructor(
+    @Inject('AUTH_SERVICE') private readonly authService: ClientProxy,
+    @Inject('PRESENCE_SERVICE') private readonly presenceService: ClientProxy,
+  ) {
+  }
+
+  @Get()
+  async foo() {
+    return { foo: 'bar!' };
+  }
+
+  @Get('users')
+  async getUsers() {
+    return this.authService.send(
+      {
+        cmd: 'get-users',
+      },
+      {},
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('presence')
+  async getPresence() {
+    return this.presenceService.send(
+      {
+        cmd: 'get-presence',
+      },
+      {},
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @UseInterceptors(UserInterceptor)
+  @Post('add-friend/:friendId')
+  async addFriend(
+    @Req() req: UserRequest,
+    @Param('friendId') friendId: number,
+  ) {
+    if (!req.user) {
+      throw new BadRequestException();
     }
 
-    @Get()
-    async foo() {
-        return {foo: 'bar!'};
-    }
+    return this.authService.send(
+      {
+        cmd: 'add-friend',
+      },
+      {
+        userId: req.user.id,
+        friendId,
+      },
+    );
+  }
 
-    @Get('auth')
-    async getUsers() {
-        return this.authService.send(
-            {
-                cmd: 'get-users'
-            },
-            {}
-        );
+  @Get('get-friends')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(UserInterceptor)
+  async getFriends(@Req() req: UserRequest){
+    if (!req.user) {
+      throw new BadRequestException();
     }
+    return this.authService.send(
+      {
+        cmd: 'get-friends',
+      },
+      {
+        userId: req.user.id,
+      }
+    );
+  }
 
-    @UseGuards(AuthGuard)
-    @Get('presence')
-    async getPresence() {
-        return this.presenceService.send(
-          {
-              cmd: 'get-presence'
-          },
-          {}
-        );
-    }
 
-    @Post('auth/register')
-    async register(
-      @Body('firstName') firstName: string,
-      @Body('lastName') lastName: string,
-      @Body('email') email: string,
-      @Body('password') password: string,
+  @Post('auth/register')
+  async register(
+    @Body('firstName') firstName: string,
+    @Body('lastName') lastName: string,
+    @Body('email') email: string,
+    @Body('password') password: string,
+  ) {
+    return this.authService.send(
+      { cmd: 'register' },
+      {
+        firstName, lastName, email, password,
+      },
+    );
+  }
 
-    ) {
-        return this.authService.send(
-          {cmd: 'register'},
-          {
-              firstName, lastName, email, password
-          }
-        );
-    }
-
-    @Post('auth/login')
-    async login(
-      @Body('email') email: string,
-      @Body('password') password: string,
-    ) {
-        return this.authService.send(
-          {cmd: 'login'},
-          {
-              email, password
-          }
-        );
-    }
+  @Post('auth/login')
+  async login(
+    @Body('email') email: string,
+    @Body('password') password: string,
+  ) {
+    return this.authService.send(
+      { cmd: 'login' },
+      {
+        email, password,
+      },
+    );
+  }
 }
