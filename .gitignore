@@ -3,6 +3,7 @@
 /node_modules
 /build
 /db/data
+/redis/data
 
 # Logs
 logs
