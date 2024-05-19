@@ -1,15 +1,21 @@
 import { Module } from '@nestjs/common';
-import { PresenceController } from './presence.controller';
-import { PresenceService } from './presence.service';
+import { CacheModule } from '@nestjs/cache-manager';
 import { RedisModule, SharedModule } from '@app/shared';
+import { PresenceGateway } from './presence.gateway';
+import { PresenceService } from './presence.service';
+import { PresenceController } from './presence.controller';
 
 @Module({
   imports: [
-    SharedModule,
+    SharedModule.registerRmq(
+      'AUTH_SERVICE',
+      process.env.RABBITMQ_AUTH_QUEUE,
+    ),
+    CacheModule.register(),
     RedisModule,
   ],
   controllers: [PresenceController],
-  providers: [PresenceService],
+  providers: [PresenceService, PresenceGateway],
 })
 export class PresenceModule {
 }
