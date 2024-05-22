@@ -11,7 +11,6 @@ import { PresenceController } from './presence.controller';
       'AUTH_SERVICE',
       process.env.RABBITMQ_AUTH_QUEUE,
     ),
-    CacheModule.register(),
     RedisModule,
   ],
   controllers: [PresenceController],

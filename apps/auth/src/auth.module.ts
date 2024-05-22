@@ -11,6 +11,8 @@ import {
   UserEntity,
   FriendRequestsRepository,
   FriendRequestEntity,
+  ConversationEntity,
+  MessageEntity,
 } from '@app/shared';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtGuard } from './jwt.guard';
@@ -37,7 +39,9 @@ import { JwtStrategy } from './jwt-strategy';
 
     TypeOrmModule.forFeature([
       UserEntity,
-      FriendRequestEntity
+      FriendRequestEntity,
+      ConversationEntity,
+      MessageEntity,
     ]),
   ],
   controllers: [AuthController],

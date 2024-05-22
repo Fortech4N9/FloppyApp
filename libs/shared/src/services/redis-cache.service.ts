@@ -3,7 +3,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 
 @Injectable()
-export class RedisService {
+export class RedisCacheService {
   constructor(@Inject(CACHE_MANAGER) private readonly cache: Cache) {
   }
 
@@ -12,9 +12,9 @@ export class RedisService {
     return await this.cache.get(key);
   }
 
-  async set(key: string, value: unknown) {
+  async set(key: string, value: unknown, ttl = 0) {
     console.log(`SET ${key} from REDIS`);
-    await this.cache.set(key, value);
+    await this.cache.set(key, value, ttl);
   }
 
   async del(key: string) {
