@@ -3,7 +3,7 @@ import { NewUserDto } from '../dtos/new-user.dto';
 import { ExistingUserDto } from '../dtos/existing-user.dto';
 
 export interface AuthServiceInterface {
-  getUsers(): Promise<UserEntity[]>;
+  getUsers(userId: number): Promise<UserEntity[]>;
 
   findByEmail(password: string): Promise<UserEntity>;
 

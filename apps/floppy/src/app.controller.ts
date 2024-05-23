@@ -26,13 +26,17 @@ export class AppController {
     return { foo: 'bar!' };
   }
 
-  @Get('users')
-  async getUsers() {
+  @UseGuards(AuthGuard)
+  @UseInterceptors(UserInterceptor)
+  @Get('friends/future-friends')
+  async getUsers(@Req() req: UserRequest) {
     return this.authService.send(
       {
         cmd: 'get-users',
       },
-      {},
+      {
+        userId: req.user.id,
+      },
     );
   }
 
@@ -49,7 +53,7 @@ export class AppController {
 
   @UseGuards(AuthGuard)
   @UseInterceptors(UserInterceptor)
-  @Post('add-friend/:friendId')
+  @Post('friends/add-friend/:friendId')
   async addFriend(
     @Req() req: UserRequest,
     @Param('friendId') friendId: number,
@@ -69,10 +73,33 @@ export class AppController {
     );
   }
 
-  @Get('get-friends')
   @UseGuards(AuthGuard)
   @UseInterceptors(UserInterceptor)
-  async getFriends(@Req() req: UserRequest){
+  @Post('friends/delete-friend/:friendId')
+  async deleteFriend(
+    @Req() req: UserRequest,
+    @Param('friendId') friendId: number,
+  ) {
+    if (!req.user) {
+      throw new BadRequestException();
+    }
+
+    return this.authService.send(
+      {
+        cmd: 'delete-friend',
+      },
+      {
+        userId: req.user.id,
+        friendId,
+      },
+    );
+  }
+
+
+  @Get('friends/my-friends')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(UserInterceptor)
+  async getFriends(@Req() req: UserRequest) {
     if (!req.user) {
       throw new BadRequestException();
     }
@@ -82,7 +109,7 @@ export class AppController {
       },
       {
         userId: req.user.id,
-      }
+      },
     );
   }
 

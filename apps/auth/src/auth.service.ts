@@ -13,6 +13,7 @@ import {
   FriendRequestsRepository,
 } from '@app/shared';
 import { AuthServiceInterface } from './interfaces/auth.service.interface';
+import { count } from 'rxjs';
 
 @Injectable()
 export class AuthService implements AuthServiceInterface {
@@ -25,8 +26,15 @@ export class AuthService implements AuthServiceInterface {
   ) {
   }
 
-  async getUsers(): Promise<UserEntity[]> {
-    return this.userRepository.findAll();
+  async getUsers(userId: number): Promise<UserEntity[]> {
+    const allUsers = await this.userRepository.findAll();
+    const friendsRelationship = await this.getFriends(userId);
+
+    const users = allUsers.filter(user => {
+      return user.id !== userId && !friendsRelationship.some(relationship => relationship.receiver.id === user.id);
+    });
+
+    return users;
   }
 
   async getUserById(id: number): Promise<UserEntity> {
@@ -161,6 +169,44 @@ export class AuthService implements AuthServiceInterface {
     const receiver = await this.findById(friendId);
 
     return await this.friendRequestsRepository.save({ creator, receiver });
+  }
+
+  async deleteFriend(
+    userId: number,
+    friendId: number,
+  ): Promise<{ message: string }> {
+    try {
+      const creator = await this.findById(userId);
+      const receiver = await this.findById(friendId);
+
+      console.log(creator);
+      console.log(receiver);
+
+      if (!creator || !receiver) {
+        throw new Error('User not found');
+      }
+
+      await this.removeFriendRequest(creator, receiver);
+
+      await this.removeFriendRequest(receiver, creator);
+
+      console.log('coolDelete');
+      return { message: 'Delete confirm' };
+    } catch (error) {
+      console.error('Error deleting friend request:', error);
+      throw error;
+    }
+  }
+
+  private async removeFriendRequest(creator: UserEntity, receiver: UserEntity) {
+    const requests = await this.friendRequestsRepository.findWithRelations({
+      where: [{ creator, receiver }, { creator: creator, receiver: receiver }],
+      relations: ['creator', 'receiver'],
+    });
+    console.log(requests);
+    if (requests) {
+      await Promise.all(requests.map((request) => this.friendRequestsRepository.remove(request)));
+    }
   }
 
   async getFriends(userId: number): Promise<FriendRequestEntity[]> {

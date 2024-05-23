@@ -17,10 +17,12 @@ export class AuthController {
   }
 
   @MessagePattern({ cmd: 'get-users' })
-  async getUsers(@Ctx() context: RmqContext) {
+  async getUsersWithoutFriends(
+    @Ctx() context: RmqContext,
+    @Payload() payload: { userId: number }) {
     this.sharedService.acknowledgeMessage(context);
 
-    return this.authService.getUsers();
+    return this.authService.getUsers(payload.userId);
   }
 
   @MessagePattern({ cmd: 'get-user' })
@@ -85,6 +87,19 @@ export class AuthController {
     this.sharedService.acknowledgeMessage(context);
 
     return this.authService.addFriend(payload.userId, payload.friendId);
+  }
+
+  @MessagePattern({ cmd: 'delete-friend' })
+  async deleteFriend(
+    @Ctx() context: RmqContext,
+    @Payload() payload: {
+      userId: number;
+      friendId: number;
+    },
+  ) {
+    this.sharedService.acknowledgeMessage(context);
+    console.log([payload.userId, payload.friendId]);
+    return this.authService.deleteFriend(payload.userId, payload.friendId);
   }
 
   @MessagePattern({ cmd: 'get-friends' })
