@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { CacheModule } from '@nestjs/cache-manager';
 import { RedisModule, SharedModule } from '@app/shared';
 import { PresenceGateway } from './presence.gateway';
 import { PresenceService } from './presence.service';

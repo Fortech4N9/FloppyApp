@@ -33,12 +33,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleConnection(socket: Socket) {
     console.log('HANDLE CONNECTION - CONVO');
 
-    const jwt = socket.handshake.headers.authorization ?? null;
-
-    if (!jwt) {
+    const jwtBearer = socket.handshake.headers.authorization ?? null;
+    if (!jwtBearer) {
       this.handleDisconnect(socket);
       return;
     }
+
+
+    const [, jwt] = jwtBearer.split(' ');
+
 
     const ob$ = this.authService.send<UserJwt>(
       { cmd: 'decode-jwt' },
@@ -95,6 +98,27 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.cache.set(`conversationUser ${user.id}`, conversationUser);
   }
 
+  private async getFriendDetails(id: number) {
+    const ob$ = this.presenceService.send(
+        {
+          cmd: 'get-active-user',
+        },
+        { id },
+    );
+
+    const activeFriend = await firstValueFrom(ob$).catch((err) =>
+        console.error(err),
+    );
+
+    if (!activeFriend) return;
+
+    const friendsDetails = (await this.cache.get(
+        `conversationUser ${activeFriend.id}`,
+    )) as { id: number; socketId: string } | undefined;
+
+    return friendsDetails;
+  }
+
   @SubscribeMessage('getConversations')
   async getConversations(socket: Socket) {
     const { user } = socket.data;
@@ -113,7 +137,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleMessage(socket: Socket, newMessage: NewMessageDto) {
     if (!newMessage) return;
 
+
+
     const { user } = socket.data;
+
+    console.log(user)
 
     if (!user) {
       return;
@@ -123,6 +151,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       user.id,
       newMessage,
     );
+
 
     const ob$ = this.presenceService.send(
       {
@@ -135,6 +164,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     const activeFriend = await firstValueFrom(ob$)
       .catch((err) => console.error(err));
+
 
     if (!activeFriend || !activeFriend.isActive) {
       return;

@@ -41,17 +41,6 @@ export class AppController {
   }
 
   @UseGuards(AuthGuard)
-  @Get('presence')
-  async getPresence() {
-    return this.presenceService.send(
-      {
-        cmd: 'get-presence',
-      },
-      {},
-    );
-  }
-
-  @UseGuards(AuthGuard)
   @UseInterceptors(UserInterceptor)
   @Post('friends/add-friend/:friendId')
   async addFriend(

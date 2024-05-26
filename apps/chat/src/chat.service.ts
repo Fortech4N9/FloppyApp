@@ -1,12 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
-import {
-  ConversationsRepositoryInterface,
-  MessagesRepositoryInterface,
-  UserEntity,
-} from '@app/shared';
-import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
-import { NewMessageDto } from './dtos/NewMessage.dto';
+import {Inject, Injectable} from '@nestjs/common';
+import {ConversationsRepositoryInterface, MessagesRepositoryInterface, UserEntity,} from '@app/shared';
+import {ClientProxy} from '@nestjs/microservices';
+import {firstValueFrom} from 'rxjs';
+import {NewMessageDto} from './dtos/NewMessage.dto';
 
 @Injectable()
 export class ChatService {
@@ -34,6 +30,18 @@ export class ChatService {
       .catch((err) => console.error(err));
 
     return user;
+  }
+
+  async getMessages(userId: number, friendId: number) {
+    const conversation = await this.conversationsRepository.findConversation(userId, friendId);
+    if (!conversation) {
+      return [];
+    }
+    return this.messagesRepository.findMessagesByConversationId(conversation.id);
+  }
+
+  async getConservation(userId: number, friendId: number){
+    return await this.conversationsRepository.findConversation(userId, friendId);
   }
 
   async getConversations(userId: number) {

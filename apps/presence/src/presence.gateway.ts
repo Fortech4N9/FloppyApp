@@ -35,14 +35,14 @@ export class PresenceGateway
   }
 
   async handleConnection(socket: Socket) {
-    console.log('HANDLE CONNECTION');
+    const jwtBearer = socket.handshake.headers.authorization ?? null;
 
-    const jwt = socket.handshake.headers.authorization ?? null;
-
-    if (!jwt) {
-      this.handleDisconnect(socket);
+    if (!jwtBearer) {
+      await this.handleDisconnect(socket);
       return;
     }
+
+    const [, jwt] = jwtBearer.split(' ');
 
     const ob$ = this.authService.send<UserJwt>(
       { cmd: 'decode-jwt' },
@@ -53,7 +53,7 @@ export class PresenceGateway
       .catch((err) => console.error(err));
 
     if (!res || !res?.user) {
-      this.handleDisconnect(socket);
+      await this.handleDisconnect(socket);
       return;
     }
 
@@ -65,8 +65,6 @@ export class PresenceGateway
   }
 
   async handleDisconnect(socket: Socket) {
-    console.log('HANDLE DISCONNECT');
-
     await this.setActiveStatus(socket, false);
   }
 
@@ -127,6 +125,7 @@ export class PresenceGateway
       if (!user) continue;
 
       const friend = user as ActiveUser;
+
 
       this.server.to(friend.socketId).emit('friendActive', {
         id: activeUser.id,
