@@ -20,7 +20,7 @@ export class ComponentsService {
   ) {
   }
 
-  private async getUser(id: number) {
+  async getUser(id: number) {
     const ob$ = this.authService.send<UserEntity>
     (
         { cmd: 'get-user' },

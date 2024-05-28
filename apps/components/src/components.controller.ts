@@ -37,4 +37,11 @@ export class ComponentsController {
   async getUnusedComponents(@Param('userId') userId: number){
     return this.componentsService.getUnusedComponents(userId);
   }
+
+  @UseGuards(AuthGuard)
+  @UseInterceptors(UserInterceptor)
+  @Post('profile/get-user/:userId')
+  async getUser(@Param('userId') userId: number) {
+    return this.componentsService.getUser(userId);
+  }
 }
