@@ -3,6 +3,7 @@ import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';
 import { ChatGateway } from './chat.gateway';
 import {
+  Component,
   ConversationEntity,
   ConversationsRepository,
   FriendRequestEntity,
@@ -10,7 +11,7 @@ import {
   MessagesRepository,
   PostgresDBModule,
   RedisModule,
-  SharedModule,
+  SharedModule, UserComponent,
   UserEntity,
 } from '@app/shared';
 import * as process from 'node:process';
@@ -33,6 +34,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       FriendRequestEntity,
       ConversationEntity,
       MessageEntity,
+      Component,
+      UserComponent,
     ]),
   ],
   controllers: [ChatController],

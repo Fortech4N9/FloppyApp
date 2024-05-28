@@ -10,11 +10,15 @@ export * from './repositories/users.repository';
 export * from './repositories/friend-requests.repository';
 export * from './repositories/messages.repository';
 export * from './repositories/conversations.repository';
+export * from './repositories/components.repository';
+export * from './repositories/user-components.repository';
 //entities
 export * from './entities/user.entity';
 export * from './entities/friend-request.entity';
 export * from './entities/conversation.entity';
 export * from './entities/message.entity';
+export * from './entities/component.entity';
+export * from './entities/user-component.entity';
 //interfaces
 export * from './interfaces/user.repository.interface';
 export * from './interfaces/friend-requests.repository.interface';
@@ -23,6 +27,8 @@ export * from './interfaces/user-request.interface';
 export * from './interfaces/user-jwt.interface';
 export * from './interfaces/conversations.repository.interface';
 export * from './interfaces/messages.repository.interface';
+export * from './interfaces/components.repository.interface';
+export * from './interfaces/user-components.repository.interface';
 // interceptors
 export * from './interceptors/user.interceptor';
 // services

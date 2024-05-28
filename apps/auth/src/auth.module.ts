@@ -12,7 +12,7 @@ import {
   FriendRequestsRepository,
   FriendRequestEntity,
   ConversationEntity,
-  MessageEntity,
+  MessageEntity, Component, UserComponent,
 } from '@app/shared';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtGuard } from './jwt.guard';
@@ -29,7 +29,7 @@ import { JwtStrategy } from './jwt-strategy';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
-        signOptions: { expiresIn: '1h' },
+        signOptions: { expiresIn: '1d' },
       }),
       inject: [ConfigService],
     }),
@@ -42,6 +42,8 @@ import { JwtStrategy } from './jwt-strategy';
       FriendRequestEntity,
       ConversationEntity,
       MessageEntity,
+      Component,
+      UserComponent,
     ]),
   ],
   controllers: [AuthController],

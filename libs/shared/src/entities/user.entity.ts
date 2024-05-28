@@ -2,6 +2,7 @@ import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 't
 import { FriendRequestEntity } from '@app/shared/entities/friend-request.entity';
 import { ConversationEntity } from '@app/shared/entities/conversation.entity';
 import { MessageEntity } from '@app/shared/entities/message.entity';
+import {UserComponent} from "@app/shared/entities/user-component.entity";
 
 @Entity('user')
 export class UserEntity {
@@ -44,4 +45,7 @@ export class UserEntity {
     (messageEntity) => messageEntity.user,
   )
   messages: MessageEntity[];
+
+  @OneToMany(() => UserComponent, (userComponent) => userComponent.user)
+  userComponents: UserComponent[];
 }

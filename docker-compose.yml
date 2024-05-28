@@ -95,3 +95,22 @@ services:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     command: npm run start:dev chat # overrides CMD from dockerfile
+
+  components:
+    build:
+      context: ./
+      dockerfile: ./apps/components/Dockerfile
+    ports:
+      - '9000:9000'
+    env_file:
+      - .env
+    depends_on:
+      - rabbitmq
+      - postgres
+      - redis
+      - presence
+      - auth
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run start:dev components # overrides CMD from dockerfile
