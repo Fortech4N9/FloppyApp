@@ -26,9 +26,13 @@ export class ComponentsService {
         { cmd: 'get-user' },
         { id },
     );
+    const user = await firstValueFrom(ob$).catch((err) => console.error(err));
 
-    return await firstValueFrom(ob$)
-        .catch((err) => console.error(err));
+    if (user){
+      delete user.password;
+    }
+
+    return user;
   }
 
   async getUserProfile(userId: number) {
